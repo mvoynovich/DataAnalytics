@@ -1,8 +1,7 @@
 library(readr)
-library(EnvStats)
 
 # set working directory (relative path)
-setwd("~/Courses/Data Analytics/Fall25/labs/lab 1/")
+setwd("C:/Users/matec/DataAnalytics/Lab1")
 
 # read data
 epi.data <- read_csv("epi_results_2024_pop_gdp.csv")
@@ -57,6 +56,7 @@ MHP.noNA
 
 # filter for only values above 30
 MHP.above30 <- MHP.noNA[MHP.noNA>30]
+# & or | for and and or
 
 MHP.above30
   
@@ -76,10 +76,12 @@ hist(EPI)
 x <- seq(20., 80., 10)
   
 # histogram (frequency distribution) over range
-hist(EPI, x, prob=TRUE)
+hist(EPI, x, prob=TRUE) # prob=FALSE is frequency instead 
 
 # print estimated density curve for variable
 lines(density(EPI,na.rm=TRUE,bw=1.)) # or try bw=“SJ”
+# na.rm is remove NA's
+# bw = is the width (SJ is smoothing)
 
 # print rug
 rug(EPI)
@@ -97,7 +99,7 @@ rug(EPI)
 
 
 # histogram (frequency distribution) over rabge
-hist(EPI.new, x, prob=TRUE) 
+hist(EPI, x, prob=TRUE) 
 
 # range
 x1<-seq(20,80,1)
@@ -137,13 +139,14 @@ qqnorm(x); qqline(x)
 
 
 # print quantile-quantile plot for variable with any theoretical distribution
-qqplot(rnorm(180), EPI.new.sub, xlab = "Q-Q plot for norm dsn") 
-qqline(EPI.new.sub)
+qqplot(rnorm(180), EPI, xlab = "Q-Q plot for norm dsn") 
+qqline(EPI)
 
 # print quantile-quantile plot for 2 variables
 qqplot(EPI, MHP, xlab = "Q-Q plot for EPI vs MHP") 
+qqline(MHP)
 
-qqplot(x, EPI, xlab = "Q-Q plot for EPI vs MHP") 
+qqplot(MHP, EPI, xlab = "Q-Q plot for EPI vs MHP") 
 qqline(EPI)
 
 y <- rnorm(500)
@@ -163,12 +166,62 @@ hist(y)
 shapiro.test(x)
 shapiro.test(y)
 
-ad.test(x)
-ad.test(y)
-
 ks.test(x,y)
 
 wilcox.test(x,y)
 
 var.test(x,y)
 t.test(x,y)
+
+
+# Start Exercise 2
+
+epi.data$PAR.new
+NAs <- is.na(epi.data$PAR.new)
+PAR <- epi.data$PAR.new[!NAs]
+
+epi.data$SHI.new
+NAs <- is.na(epi.data$SHI.new)
+SHI <- epi.data$SHI.new[!NAs]
+
+# Variable summaries
+summary(PAR)
+summary(SHI)
+
+# Boxplots
+boxplot(PAR, SHI, names = c("PAR","SHI"))
+
+# Histograms w/ lines 
+x <- seq(0., 100., 5)
+hist(PAR, x, prob=TRUE)
+lines(density(PAR,na.rm=TRUE, bw="SJ"))
+
+x <- seq(0., 100., 5)
+hist(SHI, x, prob=TRUE)
+lines(density(SHI,na.rm=TRUE, bw="SJ"))
+
+#ECDF
+plot(ecdf(PAR), do.points=FALSE, verticals=TRUE) 
+
+plot(ecdf(SHI), do.points=FALSE, verticals=TRUE) 
+
+# QQ against normal distrib
+qqnorm(PAR); qqline(PAR)
+
+qqnorm(SHI); qqline(SHI)
+
+# QQ against each other
+qqplot(PAR, SHI, xlab = "Q-Q plot for PAR vs SHI") 
+qqline(SHI)
+
+# Normality tests
+shapiro.test(PAR)
+shapiro.test(SHI)
+
+# Statistical test for variables having same distribution
+ks.test(PAR, SHI)
+wilcox.test(PAR,SHI)
+
+# Variance tests
+var.test(PAR,SHI)
+t.test(PAR,SHI)
