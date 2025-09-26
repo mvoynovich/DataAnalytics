@@ -3,7 +3,7 @@
 library(ggplot2)
 
 ### set working directory
-setwd("~/Courses/Data Analytics/Fall25/labs/lab 1/")
+setwd("C:/Users/matec/DataAnalytics/Lab2")
 
 ### read in data
 epi.data <- read.csv("epi_results_2024_pop_gdp_v2.csv", header=TRUE)
@@ -119,3 +119,58 @@ ggplot(lin.mod2, aes(x = .fitted, y = .resid)) +
   geom_hline(yintercept = 0) +
   labs(title='Residual vs. Fitted Values Plot', x='Fitted Values', y='Residuals')
 
+############################
+# LAB 2 Student Work Start #
+############################
+
+# Start cleaning the data
+# Remove any null values
+Clean_NY_House <- na.omit(NY_House_Dataset)
+NY_House_DF <- data.frame(Price = Clean_NY_House$PRICE, PropertySqFt = Clean_NY_House$PROPERTYSQFT, Beds = Clean_NY_House$BEDS, Bath = Clean_NY_House$BATH)
+NY_House_DF$Bath <- round(NY_House_DF$Bath)
+# Get just the variables we want to use for linear model
+# Round Baths to be integers
+
+# Start creating models
+house_lin_model0 <- lm(Price~., NY_House_DF)
+summary(house_lin_model0)
+
+ggplot(NY_House_DF, aes(x = PropertySqFt, y = Price)) +
+  geom_point() +
+  stat_smooth(method = "lm")
+
+# Outliers make it really hard. Repeat with their removal using z-score/standard deviation
+meanVal <- mean(NY_House_DF$Price, na.rm = TRUE)
+sdVal <- sd(NY_House_DF$Price, na.rm = TRUE)
+
+NY_House_DF <- NY_House_DF[abs(NY_House_DF$Price - meanVal) <= 3*sdVal, ]
+
+# Repeat creation of first model
+house_lin_model0 <- lm(Price~., NY_House_DF)
+summary(house_lin_model0)
+
+ggplot(NY_House_DF, aes(x = PropertySqFt, y = Price)) +
+  geom_point() +
+  stat_smooth(method = "lm")
+
+# Create model with log price
+NY_House_DF$LogPrice <- log10(NY_House_DF$Price)
+
+# Repeat Linear Model Now
+house_lin_model1 <- lm(LogPrice~Bath + Beds + PropertySqFt, NY_House_DF)
+summary(house_lin_model1)
+
+ggplot(NY_House_DF, aes(x = Bath, y = LogPrice)) +
+  geom_point() +
+  stat_smooth(method = "lm")
+
+# Remove beds because they have been insignificant
+
+house_lin_model2 <- lm(Price~Bath + PropertySqFt, NY_House_DF)
+summary(house_lin_model2)
+
+ggplot(NY_House_DF, aes(x = PropertySqFt, y = Price)) +
+  geom_point() +
+  stat_smooth(method = "lm")
+
+# Removing beds actually hurts the model
