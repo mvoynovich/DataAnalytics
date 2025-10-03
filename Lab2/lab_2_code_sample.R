@@ -153,6 +153,11 @@ ggplot(NY_House_DF, aes(x = PropertySqFt, y = Price)) +
   geom_point() +
   stat_smooth(method = "lm")
 
+ggplot(house_lin_model0, aes(x = .fitted, y = .resid)) +
+  geom_point() +
+  geom_hline(yintercept = 0) +
+  labs(title='Residual vs. Fitted Values Plot', x='Fitted Values', y='Residuals')
+
 # Create model with log price
 NY_House_DF$LogPrice <- log10(NY_House_DF$Price)
 
@@ -164,6 +169,11 @@ ggplot(NY_House_DF, aes(x = Bath, y = LogPrice)) +
   geom_point() +
   stat_smooth(method = "lm")
 
+ggplot(house_lin_model1, aes(x = .fitted, y = .resid)) +
+  geom_point() +
+  geom_hline(yintercept = 0) +
+  labs(title='Residual vs. Fitted Values Plot', x='Fitted Values', y='Residuals')
+
 # Remove beds because they have been insignificant
 
 house_lin_model2 <- lm(Price~Bath + PropertySqFt, NY_House_DF)
@@ -173,4 +183,10 @@ ggplot(NY_House_DF, aes(x = PropertySqFt, y = Price)) +
   geom_point() +
   stat_smooth(method = "lm")
 
-# Removing beds actually hurts the model
+ggplot(house_lin_model2, aes(x = .fitted, y = .resid)) +
+  geom_point() +
+  geom_hline(yintercept = 0) +
+  labs(title='Residual vs. Fitted Values Plot', x='Fitted Values', y='Residuals')
+
+# Removing beds actually hurts the model slightly despite variable being insignificant
+
