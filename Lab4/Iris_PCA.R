@@ -56,7 +56,6 @@ summary(principal_components)
 
 principal_components$loadings
 
-
 # using the plot() function, we can plot the principal components.
 plot(principal_components)
 
