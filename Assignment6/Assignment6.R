@@ -99,6 +99,9 @@ cat("Precision:", precision_test, "\n")
 cat("Recall:", recall_test, "\n")
 cat("F1 Score:", f1_test, "\n")
 
+feat_imp <- importance(rf_class)
+print(feat_imp)
+
 # 2. Logistic Regression for y
 logit_model <- glm(y ~ ., data = train, family = binomial)
 
@@ -138,19 +141,44 @@ cat("Precision:", precision_test_logit, "\n")
 cat("Recall:", recall_test_logit, "\n")
 cat("F1 Score:", f1_test_logit, "\n\n")
 
-# 3. Random Forest Regression for campaign
-rf_reg <- randomForest(campaign ~ ., data = train, importance = TRUE, ntree = 500)
+# 3. Linear Regression for campaign
+predictors <- train %>% select(-campaign)
+response <- train$campaign
+
+# Define training control
+train_control <- trainControl(method = "cv", number = 5)  # 5-fold CV
+
+# Train linear regression model
+lm_campaign <- lm(campaign ~ ., data = train)
 
 # Predictions
-pred_train_reg <- predict(rf_reg, train)
-pred_test_reg  <- predict(rf_reg, test)
+pred_train <- predict(lm_campaign, newdata = train)
+pred_test  <- predict(lm_campaign, newdata = test)
 
-# Evaluate regression
-mse_train <- mean((train$campaign - pred_train_reg)^2)
-mse_test  <- mean((test$campaign - pred_test_reg)^2)
+# Evaluate regression with Mean Squared Error
+mse_train <- mean((train$campaign - pred_train)^2)
+mse_test  <- mean((test$campaign - pred_test)^2)
 
-cat("Regression MSE - Training Set:", mse_train, "\n")
-cat("Regression MSE - Test Set:", mse_test, "\n")
+mae_train <- mean(abs(train$campaign - pred_train))
+mae_test  <- mean(abs(test$campaign - pred_test))
 
+cat("Linear Regression MSE - Training Set:", mse_train, "\n")
+cat("Linear Regression MSE - Test Set:", mse_test, "\n")
 
+cat("Linear Regression Mean Absolute Error - Training Set:", mae_train, "\n")
+cat("Linear Regression Mean Absolute Error - Test Set:", mae_test, "\n")
 
+residuals_train <- train$campaign - pred_train
+
+ggplot(data = data.frame(Predicted = pred_train, Residuals = residuals_train),
+       aes(x = Predicted, y = Residuals)) +
+  geom_point(color = "steelblue", alpha = 0.6) +
+  geom_hline(yintercept = 0, color = "red", linetype = "dashed") +
+  labs(title = "Residual Plot - Linear Regression (campaign)",
+       x = "Predicted Values",
+       y = "Residuals") +
+  theme_minimal()
+
+# Coefficients (weights)
+weights <- coef(lm_campaign)
+print(weights)
