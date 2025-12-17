@@ -20,6 +20,17 @@ df <- df[, c("PRICE", "PROPERTYSQFT")]
 ## remove missing values
 df <- na.omit(df)
 
+## remove outliers based on IQR
+Q1 <- quantile(df$PRICE, 0.25)
+Q3 <- quantile(df$PRICE, 0.75)
+IQR_val <- Q3 - Q1
+
+lower_bound <- Q1 - 1.5 * IQR_val
+upper_bound <- Q3 + 1.5 * IQR_val
+
+df <- df[df$PRICE >= lower_bound & df$PRICE <= upper_bound, ]
+
+# test train split
 N <- nrow(df)
 train.indexes <- sample(N,0.8*N)
 
